@@ -4,10 +4,10 @@ const getLDAPConfiguration = (req, callback) => {
   process.nextTick(() => {
     const options = {
       server: {
-        url: 'ldap://ldap.forumsys.com',
-        bindDN: `uid=${req.body.username},dc=example,dc=com`,
+        url: 'ldap://ldap.dcs.aber.ac.uk',
+        bindDN: `uid=${req.body.username},ou=People,dc=dcs,dc=aber,dc=ac,dc=uk`,
         bindCredentials: `${req.body.password}`,
-        searchBase: 'dc=example,dc=com',
+        searchBase: 'dc=dcs,dc=aber,dc=ac,dc=uk',
         searchFilter: `uid=${req.body.username}`
       }
     }
