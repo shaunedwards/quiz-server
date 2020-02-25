@@ -11,7 +11,7 @@ router.post('/login', passport.authenticate('ldapauth', { session: true }), asyn
     const newUser = await User.create({
       uid: req.user.uid,
       email: req.user.mail,
-      full_name: req.user.cn
+      name: req.user.displayName
     });
     console.log('new user created', newUser);
   } else {
@@ -31,7 +31,7 @@ router.get('/logout', (req, res, next) => {
 
 router.get('/dashboard', isAuthenticated, (req, res, next) => {
   res.json({
-    message: `Hi, ${req.user.full_name}!`,
+    message: `Hi, ${req.user.name}!`,
     user: req.user
   });
 });

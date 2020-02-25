@@ -4,14 +4,17 @@ const userSchema = new Schema({
   uid: {
     type: String,
     trim: true,
+    required: true
   },
   email: {
     type: String,
-    trim: true
+    trim: true,
+    required: true
   },
-  full_name: {
+  name: {
     type: String,
-    trim: true
+    trim: true,
+    required: true
   },
   favourites: [{
     type: 'ObjectId',

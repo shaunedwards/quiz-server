@@ -16,11 +16,3 @@ const getLDAPConfiguration = (req, callback) => {
 }
 
 module.exports = new LdapStrategy(getLDAPConfiguration);
-
-// server: {
-//   url: 'ldap://zflexldap.com',
-//   bindDN: `uid=${req.body.username},ou=users,ou=guests,dc=zflexsoftware,dc=com`,
-//   bindCredentials: `${req.body.password}`,
-//   searchBase: 'dc=zflexsoftware,dc=com',
-//   searchFilter: `uid=${req.body.username}`
-// }

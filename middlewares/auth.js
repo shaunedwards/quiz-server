@@ -8,7 +8,7 @@ function isAuthenticated(req, res, next) {
 async function isCreator(req, res, next) {
   const game = await Game.findById(req.params.id);
   if (game.created_by.equals(req.user._id)) return next();
-  res.sendStatus(401);
+  res.sendStatus(403);
 }
 
 module.exports = {
