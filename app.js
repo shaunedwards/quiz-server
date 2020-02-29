@@ -22,7 +22,10 @@ passport.use(LdapStrategy);
 // middlewares
 app.use(cors({
   credentials: true,
-  origin: 'http://mmp-sme4.dcs.aber.ac.uk:3000'
+  origin: [
+    'http://localhost:3000',
+    'http://mmp-sme4.dcs.aber.ac.uk:3000'
+  ]
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -41,6 +44,7 @@ app.use(passport.session());
 // routes
 app.use('/', require('./routes/account'));
 app.use('/games', require('./routes/games'));
+app.use('/subjects', require('./routes/subjects'));
 
 // error handling
 app.use((req, res, next) => {

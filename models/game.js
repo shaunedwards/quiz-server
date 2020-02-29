@@ -5,10 +5,10 @@ require('./subject');
 require('./question');
 
 const gameSchema = new Schema({
-  name: {
+  title: {
     type: String,
     trim: true,
-    required: 'Game name cannot be empty',
+    required: 'Quiz title cannot be empty',
   },
   desc: {
     type: String,
@@ -23,10 +23,11 @@ const gameSchema = new Schema({
     type: Boolean,
     default: true
   },
-  subjects: [{
+  subject: {
     type: 'ObjectId',
-    ref: 'Subject'
-  }],
+    ref: 'Subject',
+    required: true
+  },
   questions: [{
     type: 'ObjectId',
     ref: 'Question'
@@ -36,7 +37,5 @@ const gameSchema = new Schema({
     default: true
   }
 });
-
-gameSchema.path('subjects').validate(arr => arr && arr.length > 0, 'You must select at least one subject');
 
 module.exports = model('Game', gameSchema);
