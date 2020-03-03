@@ -2,13 +2,12 @@ const { model, Schema } = require('mongoose');
 
 require('./user');
 require('./subject');
-require('./question');
 
 const gameSchema = new Schema({
   title: {
     type: String,
     trim: true,
-    required: 'Quiz title cannot be empty',
+    required: true
   },
   desc: {
     type: String,
@@ -28,10 +27,7 @@ const gameSchema = new Schema({
     ref: 'Subject',
     required: true
   },
-  questions: [{
-    type: 'ObjectId',
-    ref: 'Question'
-  }],
+  questions: [require('./question').schema],
   draft: {
     type: Boolean,
     default: true

@@ -10,15 +10,11 @@ const questionSchema = new Schema({
   text: {
     type: String,
     trim: true,
-    required: 'Question text cannot be empty'
+    required: true
   },
   choices: {
     type: [String],
-    trim: true,
-    validate: {
-      validator: arr => arr && arr.length > 0 && arr.length < 5,
-      message: 'You must provide between 1 to 4 answers for your question'
-    }
+    trim: true
   },
   correct_answers: {
     type: [String],
