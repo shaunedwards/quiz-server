@@ -1,7 +1,7 @@
 const Game = require('../models/game');
 
 function isAuthenticated(req, res, next) {
-  if (req.user) return next();
+  if (req.isAuthenticated()) return next();
   res.sendStatus(401);
 }
 
