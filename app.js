@@ -24,6 +24,7 @@ app.use(cors({
   credentials: true,
   origin: [
     'http://localhost:3000',
+    'http://mmp-sme4.dcs.aber.ac.uk',
     'http://mmp-sme4.dcs.aber.ac.uk:3000'
   ]
 }));
@@ -64,6 +65,7 @@ app.use((err, req, res, next) => {
 mongoose.connect(process.env.MONGO_URI, {
   useCreateIndex: true,
   useNewUrlParser: true,
+  useFindAndModify: false,
   useUnifiedTopology: true,
 });
 
