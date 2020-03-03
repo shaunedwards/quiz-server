@@ -18,7 +18,6 @@ router.get('/:id', (req, res, next) => {
   Game.findById(req.params.id)
     .populate('created_by')
     .populate('subject')
-    .populate('questions')
     .exec()
     .then(game => res.json(game))
     .catch(next);

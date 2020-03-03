@@ -25,8 +25,11 @@ router.post('/login', passport.authenticate('ldapauth', { session: true }), asyn
 });
 
 router.get('/logout', (req, res, next) => {
-  req.logout();
-  res.redirect('/login');
+  req.session.destroy(() => {
+    req.logout();
+    res.clearCookie('connect.sid');
+    res.sendStatus(200);
+  });
 });
 
 router.get('/dashboard', isAuthenticated, (req, res, next) => {
