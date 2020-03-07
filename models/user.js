@@ -26,4 +26,19 @@ const userSchema = new Schema({
   }
 });
 
+userSchema.methods.favourite = function(id) {
+  if (this.favourites.includes(id)) return;
+  this.favourites.push(id);
+  return this.save();
+}
+
+userSchema.methods.unfavourite = function(id) {
+  const index = this.favourites.indexOf(id);
+  if (index !== -1) {
+    this.favourites.splice(index, 1);
+    return this.save();
+  }
+  return false;
+}
+
 module.exports = model('User', userSchema);
