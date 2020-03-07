@@ -9,15 +9,16 @@ const Game = require('../models/game');
 
 router.get('/', (req, res, next) => {
   Game.find({ public: true, draft: false })
-    .populate('created_by').exec()
+    .populate('created_by', '-email')
+    .exec()
     .then(games => res.json(games))
     .catch(next);
 });
 
 router.get('/:id', (req, res, next) => {
   Game.findById(req.params.id)
-    .populate('created_by')
-    .populate('subject')
+    .populate('created_by', '-email')
+    .populate('subject', '-background_image')
     .exec()
     .then(game => res.json(game))
     .catch(next);

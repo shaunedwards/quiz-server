@@ -44,6 +44,7 @@ app.use(passport.session());
 
 // routes
 app.use('/', require('./routes/account'));
+app.use('/users', require('./routes/users'));
 app.use('/games', require('./routes/games'));
 app.use('/subjects', require('./routes/subjects'));
 

@@ -32,9 +32,9 @@ router.get('/logout', (req, res, next) => {
   });
 });
 
-router.get('/dashboard', isAuthenticated, (req, res, next) => {
-  res.json({
-    message: `Hi, ${req.user.name}!`,
+router.get('/session', isAuthenticated, (req, res, next) => {
+  res.status(200).json({
+    sid: req.session.id,
     user: req.user
   });
 });
