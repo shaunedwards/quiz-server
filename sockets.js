@@ -36,7 +36,7 @@ async function init(server) {
   const newGame = async () => {
     quiz = await getRandomQuiz();
     game.title = quiz.title;
-    game.currentQuestion = 0;
+    game.currentQuestion = -1;
     game.question = quiz.questions[0];
     game.isOver = false;
     resetScores();
