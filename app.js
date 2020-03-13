@@ -1,5 +1,6 @@
 require('dotenv').config();
 const cors = require('cors');
+const http = require('http');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport');
@@ -9,6 +10,8 @@ const User = require('./models/user');
 const LdapStrategy = require('./auth/ldap');
 
 const app = express();
+const server = http.createServer(app);
+require('./sockets')(server);
 
 // passport setup
 passport.serializeUser((user, done) => done(null, user.uid));
@@ -72,4 +75,4 @@ mongoose.connect(process.env.MONGO_URI, {
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Listening for requests on port ${port}`));
+server.listen(port, () => console.log(`Listening for requests on port ${port}`));
