@@ -2,7 +2,7 @@ const fetch = require('node-fetch');
 const socketIO = require('socket.io');
 
 async function getRandomQuiz() {
-  const response = await fetch('http://mmp-sme4.dcs.aber.ac.uk/api/games');
+  const response = await fetch('http://localhost:5000/games');
   const data = await response.json();
   return data[Math.floor(Math.random() * data.length)];
 }
@@ -67,7 +67,7 @@ async function init(server) {
       game.players[socket.id] = player;
       console.log(game);
       emitGameState();
-      io.emit('question', game.question);
+      socket.emit('question', game.question);
     });
     
     socket.on('answer', (answer, callback) => {
