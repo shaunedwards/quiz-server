@@ -13,7 +13,9 @@ router.get('/', isAuthenticated, (req, res, next) => {
 });
 
 router.get('/games', isAuthenticated, (req, res, next) => {
+  const limit = Number(req.query.limit) || 0;
   Game.find({ created_by: req.user._id })
+    .limit(limit)
     .populate('subject')
     .populate('created_by')
     .exec()
@@ -22,7 +24,14 @@ router.get('/games', isAuthenticated, (req, res, next) => {
 });
 
 router.get('/favourites', isAuthenticated, (req, res, next) => {
-  Game.find().where('_id').in(req.user.favourites).exec()
+  const limit = Number(req.query.limit) || 0;
+  Game.find()
+    .where('_id')
+    .in(req.user.favourites)
+    .limit(limit)
+    .populate('subject')
+    .populate('created_by')
+    .exec()
     .then(favourites => res.json(favourites))
     .catch(next);
 });
