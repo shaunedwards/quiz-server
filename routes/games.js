@@ -15,6 +15,17 @@ router.get('/', (req, res, next) => {
     .catch(next);
 });
 
+router.get('/recent', (req, res, next) => {
+  const limit = Number(req.query.limit) || 5;
+  Game.find({ public: true, draft: false })
+    .limit(limit)
+    .sort({ _id: -1 })
+    .populate('created_by', '-email')
+    .exec()
+    .then(recent => res.json(recent))
+    .catch(next);
+});
+
 router.get('/:id', (req, res, next) => {
   Game.findById(req.params.id)
     .populate('created_by', '-email')
