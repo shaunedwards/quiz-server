@@ -8,6 +8,7 @@ const session = require('express-session');
 
 const User = require('./models/user');
 const LdapStrategy = require('./auth/ldap');
+const LocalStrategy = require('./auth/local');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,6 +22,7 @@ passport.deserializeUser((uid, done) => {
   });
 });
 passport.use(LdapStrategy);
+passport.use(LocalStrategy);
 
 // middlewares
 app.use(cors({

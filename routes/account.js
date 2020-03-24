@@ -5,7 +5,36 @@ const router = express.Router();
 const User = require('../models/user');
 const { isAuthenticated } = require('../middlewares/auth');
 
-router.post('/login', passport.authenticate('ldapauth', { session: true }), async (req, res, next) => {
+async function updateLastLogin(user) {
+  user.last_login = Date.now();
+  await user.save();
+}
+
+router.post('/register', async (req, res, next) => {
+  const { username: uid, password } = req.body;
+  const user = await User.findOne({ uid });
+  if (user) return res.status(400).json({ error: 'username already exists' });
+  const newUser = await new User({ uid, password });
+  newUser.save((err, user) => {
+    if (err) return next(err);
+    res.status(201).json(user);
+  });
+});
+
+router.post('/auth/local', (req, res, next) => {
+  passport.authenticate('local', { session: true }, async (err, user, info) => {
+    if (err || !user) return res.status(401).json({ error: info });
+    await updateLastLogin(user);
+    req.login(user, () => {
+      res.json({
+        message: 'Login successful',
+        user: req.user
+      });
+    });
+  })(req, res, next);
+});
+
+router.post('/auth/ldap', passport.authenticate('ldapauth', { session: true }), async (req, res, next) => {
   const user = await User.findOne({ uid: req.user.uid });
   if (!user) {
     const newUser = await User.create({
@@ -15,8 +44,7 @@ router.post('/login', passport.authenticate('ldapauth', { session: true }), asyn
     });
     console.log('new user created', newUser);
   } else {
-    user.last_login = Date.now();
-    await user.save();
+    await updateLastLogin(user);
   }
   res.json({
     message: 'Login successful',
