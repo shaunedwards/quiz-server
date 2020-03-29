@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
 
+require('./db/connection');
 const User = require('./models/user');
 const LdapStrategy = require('./auth/ldap');
 const LocalStrategy = require('./auth/local');
@@ -68,13 +69,8 @@ app.use((err, req, res, next) => {
   });
 });
 
-mongoose.connect(process.env.MONGO_URI, {
-  useCreateIndex: true,
-  useNewUrlParser: true,
-  useFindAndModify: false,
-  useUnifiedTopology: true,
-});
-
 const port = process.env.PORT || 5000;
 
 server.listen(port, () => console.log(`Listening for requests on port ${port}`));
+
+module.exports = app;

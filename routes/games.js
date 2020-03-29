@@ -37,7 +37,7 @@ router.get('/:id', (req, res, next) => {
 router.post('/', isAuthenticated, (req, res, next) => {
   req.body.created_by = req.user._id;
   new Game(req.body).save()
-    .then(game => res.json(game))
+    .then(game => res.status(201).json(game))
     .catch(next);
 });
 

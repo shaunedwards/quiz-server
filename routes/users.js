@@ -40,7 +40,7 @@ router.post('/favourites', isAuthenticated, (req, res, next) => {
   User.findOne({ _id: req.user._id })
     .then(user => {
       user.favourite(req.query.qid);
-      res.json(user);
+      res.sendStatus(200);
     })
     .catch(next);
 });
@@ -49,7 +49,7 @@ router.delete('/favourites', isAuthenticated, (req, res, next) => {
   User.findOne({ _id: req.user._id })
     .then(user => {
       user.unfavourite(req.query.qid);
-      res.json(user);
+      res.sendStatus(200);
     })
     .catch(next);
 });

@@ -8,6 +8,7 @@ async function getRandomQuiz() {
 }
 
 async function init(server) {
+  if (process.env.NODE_ENV === 'test') return;
   const io = socketIO(server);
   let quiz = await getRandomQuiz();
   const game = {
