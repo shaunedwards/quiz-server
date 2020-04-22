@@ -89,7 +89,7 @@ describe('Users tests', () => {
   describe('DELETE /users/favourites while not logged in', () => {
     it('should return a 401 response', (done) => {
       request(app)
-        .get('/users/favourites')
+        .delete('/users/favourites')
         .query({ qid: games[0]._id.toString() })
         .expect(401, done);
     });

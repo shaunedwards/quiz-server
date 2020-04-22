@@ -2,7 +2,6 @@ require('dotenv').config();
 const cors = require('cors');
 const http = require('http');
 const express = require('express');
-const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require('express-session');
 
@@ -29,6 +28,7 @@ passport.use(LocalStrategy);
 app.use(cors({
   credentials: true,
   origin: [
+    'https://quiz.sme.dev',
     'http://localhost:3000',
     'http://mmp-sme4.dcs.aber.ac.uk',
     'http://mmp-sme4.dcs.aber.ac.uk:3000'
