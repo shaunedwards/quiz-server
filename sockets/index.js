@@ -113,13 +113,15 @@ async function init(server) {
     });
 
     socket.on('kickPlayer', (socketId) => {
+      const room = socket.room;
       // was it sent by the game host?
-      if (games[socket.room].host !== socket.id) return;
+      if (games[room].host !== socket.id) return;
       const player = io.sockets.connected[socketId];
       if (!player) return;
-      // TODO: investigate why players cant reconnect without refresh after being kicked
+      player.leave(room);
+      games[room].removePlayer(player);
+      emitGameState(room);
       player.emit('forceDisconnect', 'You were removed by the game host!');
-      player.disconnect();
     });
 
     socket.on('feedback', (rating) => {
