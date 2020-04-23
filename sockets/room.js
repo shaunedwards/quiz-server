@@ -43,11 +43,9 @@ class Room {
   }
 
   getCurrentQuestion() {
-    // let quiz = Object.assign({}, this.quiz);
-    // let question = quiz.questions[this.currentIdx];
-    // question.correct_answers = undefined;
-    // return question;
-    return this.quiz.questions[this.currentIdx];
+    let question = { ...this.quiz.questions[this.currentIdx] };
+    question.correct_answers = undefined;
+    return question;
   }
 
   getCurrentAnswers() {
