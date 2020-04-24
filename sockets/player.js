@@ -7,6 +7,7 @@ class Player {
     this.incorrect = 0;
     this.feedback = false;
     this.hasAnswered = false;
+    this.answerHistory = [];
   }
 
   setCorrect(points) {
@@ -18,6 +19,14 @@ class Player {
   setIncorrect() {
     this.streak = 0;
     this.incorrect += 1;
+  }
+
+  addAnswer(answer) {
+    this.answerHistory.push(answer);
+  }
+
+  getTotalCorrect() {
+    return this.answerHistory.filter(answer => answer.isCorrect).length;
   }
 }
 

@@ -31,6 +31,24 @@ const gameSchema = new Schema({
   draft: {
     type: Boolean,
     default: true
+  },
+  stats: {
+    total_hosted: {
+      type: Number,
+      default: 0
+    },
+    total_correct: {
+      type: Number,
+      default: 0
+    },
+    total_questions: {
+      type: Number,
+      default: 0
+    },
+    total_players: {
+      type: Number,
+      default: 0
+    }
   }
 });
 

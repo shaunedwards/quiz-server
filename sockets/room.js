@@ -56,6 +56,18 @@ class Room {
     return this.quiz.questions.length;
   }
 
+  getNumPlayers() {
+    return Object.keys(this.players).length;
+  }
+
+  getTotalCorrect() {
+    let total = 0;
+    Object.entries(this.players).forEach(([_, player]) => {
+      total += player.getTotalCorrect()
+    });
+    return total;
+  }
+
   toJSON() {
     return {
       host: this.host,

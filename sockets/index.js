@@ -6,6 +6,7 @@ const nanoid = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
 const Room = require('./room');
 const Player = require('./player');
+const Game = require('../models/game');
 
 const games = {};
 
@@ -21,6 +22,20 @@ async function init(server) {
       if (timer === 1) return clearInterval(timeRemaining);
       io.to(room).emit('timer', --timer);
     }, 1000);
+  }
+
+  const incrementDbStats = (game) => {
+    Game.findOne({ _id: game.quiz._id }, (err, doc) => {
+      if (err) throw err;
+      let { total_hosted, total_correct, total_questions, total_players } = doc.stats;
+      doc.stats = {
+        total_hosted: total_hosted += 1,
+        total_correct: total_correct += game.getTotalCorrect(),
+        total_questions: total_questions += game.getNumQuestions(),
+        total_players: total_players += game.getNumPlayers()
+      }
+      doc.save();
+    });
   }
 
   io.on('connection', (socket) => {
@@ -74,7 +89,8 @@ async function init(server) {
         if (game.isOver) {
           game.state = 'GAMEOVER';
           emitGameState(room);
-          return clearInterval(timer);
+          clearInterval(timer);
+          return incrementDbStats(game);
         }
         game.nextQuestion();
         emitTimer(room, game.getCurrentQuestion().timer);
@@ -98,15 +114,18 @@ async function init(server) {
       if (!room) return;
       const player = games[room].getPlayerBySocket(socket);
       const answers = games[room].getCurrentAnswers();
-      const { points } = games[room].getCurrentQuestion();
+      const question = games[room].getCurrentQuestion();
       const { streakMultiplier } = games[room].options;
-      if (!answers.length || answers.includes(answer)) {
-        player.setCorrect(streakMultiplier && player.streak ? points * player.streak : points);
+      const isCorrect = !answers.length || answers.includes(answer);
+      if (isCorrect) {
+        player.setCorrect(streakMultiplier && player.streak ? question.points * player.streak : question.points);
         callback(true);
       } else {
         player.setIncorrect();
         callback(false);
       }
+      question.correct_answers = answers;
+      player.addAnswer({ question, answer, isCorrect });
       // TODO: if no answer, reset streak
       games[room].numAnswered += 1;
       emitGameState(room);
