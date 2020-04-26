@@ -8,7 +8,7 @@ class GameManager {
   }
   
   removeGame(roomID) {
-    this.games[roomID] = undefined;
+    delete this.games[roomID];
   }
 
   getGameById(roomID) {

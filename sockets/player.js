@@ -14,11 +14,13 @@ class Player {
     this.score += points;
     this.correct += 1;
     this.streak += 1;
+    this.hasAnswered = true;
   }
 
   setIncorrect() {
     this.streak = 0;
     this.incorrect += 1;
+    this.hasAnswered = true;
   }
 
   addAnswer(answer) {

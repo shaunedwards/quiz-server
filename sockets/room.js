@@ -22,9 +22,30 @@ class Room {
   }
 
   nextQuestion() {
+    // pre-question checks before moving on...
+    const question = this.getCurrentQuestion();
+    const correct_answers = this.getCurrentAnswers();
+    Object.entries(this.players).forEach(([_, player]) => {
+      // if `hasAnswered` is false, push to answer history + reset streak
+      if (!player.hasAnswered) {
+        player.streak = 0;
+        player.answerHistory.push({
+          question: {
+            ...question,
+            correct_answers
+          },
+          answer: null,
+          isCorrect: false
+        });
+      }
+      // reset `hasAnswered` for all players so they can receive points
+      player.hasAnswered = false;
+    });
+    // is the game over yet?
+    this.isOver = this.currentIdx === this.quiz.questions.length - 1;
+    if (this.isOver) return;
     this.currentIdx++;
     this.numAnswered = 0;
-    this.isOver = this.currentIdx === this.quiz.questions.length - 1;
   }
 
   addPlayer(socket, player) {
@@ -35,7 +56,7 @@ class Room {
     if (this.numAnswered > 0) {
       this.numAnswered--;
     }
-    this.players[socket.id] = undefined;
+    delete this.players[socket.id];
   }
 
   getPlayerBySocket(socket) {
@@ -63,7 +84,7 @@ class Room {
   getTotalCorrect() {
     let total = 0;
     Object.entries(this.players).forEach(([_, player]) => {
-      total += player.getTotalCorrect()
+      total += player.getTotalCorrect();
     });
     return total;
   }
