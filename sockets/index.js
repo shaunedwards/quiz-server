@@ -74,7 +74,6 @@ async function init(server) {
       if (!room) return;
       const game = games[room];
       game.state = 'QUESTION';
-      // socket.emit('question', game.getCurrentQuestion());
       io.to(room).emit('question', game.getCurrentQuestion());
       emitGameState(room);
       emitTimer(room, game.getCurrentQuestion().timer);

@@ -5,7 +5,6 @@ class Player {
     this.streak = 0;
     this.correct = 0;
     this.incorrect = 0;
-    this.feedback = false;
     this.hasAnswered = false;
     this.answerHistory = [];
   }
