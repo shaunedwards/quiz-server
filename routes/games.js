@@ -9,7 +9,7 @@ const Game = require('../models/game');
 
 router.get('/', (req, res, next) => {
   Game.find({ public: true, draft: false })
-    .populate('created_by', '-email')
+    .populate('created_by', '-email -password -favourites')
     .exec()
     .then(games => res.json(games))
     .catch(next);
@@ -27,7 +27,7 @@ router.get('/recent', (req, res, next) => {
 
 router.get('/:id', (req, res, next) => {
   Game.findById(req.params.id)
-    .populate('created_by', '-email')
+    .populate('created_by', '-email -password -favourites')
     .populate('subject', '-background_image')
     .exec()
     .then(game => res.json(game))

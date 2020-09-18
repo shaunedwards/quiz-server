@@ -6,15 +6,18 @@ const nanoid = customAlphabet('123456789ABCDEFGHJKLMNPQRSTUVWXYZ', 6);
 
 const Room = require('./room');
 const Player = require('./player');
-const Game = require('../models/game');
+const Manager = require('./manager');
 
-const games = {};
+const manager = new Manager();
 
 async function init(server) {
   if (process.env.NODE_ENV === 'test') return;
   const io = socketIO(server);
 
-  const emitGameState = (room) => io.to(room).emit('gamestate', games[room].toJSON());
+  const emitGameState = (room) => {
+    const game = manager.getGameById(room);
+    io.to(room).emit('gamestate', game.toJSON());
+  }
 
   const emitTimer = (room, timer) => {
     io.to(room).emit('timer', timer);
@@ -24,46 +27,30 @@ async function init(server) {
     }, 1000);
   }
 
-  const incrementDbStats = (game) => {
-    Game.findOne({ _id: game.quiz._id }, (err, doc) => {
-      if (err) throw err;
-      let { total_hosted, total_correct, total_questions, total_players } = doc.stats;
-      doc.stats = {
-        total_hosted: total_hosted += 1,
-        total_correct: total_correct += game.getTotalCorrect(),
-        total_questions: total_questions += game.getNumQuestions(),
-        total_players: total_players += game.getNumPlayers()
-      }
-      doc.save();
-    });
-  }
-
   io.on('connection', (socket) => {
-    console.log('PLAYER JOINED', socket.id);
-
     socket.on('playerJoin', (room, callback) => {
-      if (!games[room] || games[room].isOver) return callback(false);
+      const game = manager.getGameById(room);
+      if (!game || game.isOver) return callback(false);
       socket.join(room);
       socket.room = room;
       const nickname = generateName();
       const player = new Player(nickname);
-      games[room].addPlayer(socket, player);
+      game.addPlayer(socket, player);
       socket.emit('nickname', nickname);
-      socket.emit('question', games[room].getCurrentQuestion());
+      socket.emit('question', game.getCurrentQuestion());
       emitGameState(room);
     });
 
     socket.on('createGame', (quiz, options) => {
       let roomID = nanoid();
-      while (games[roomID]) {
+      while (manager.getGameById(roomID)) {
         roomID = nanoid();
-        console.log('duplicate', roomID);
       }
-      games[roomID] = new Room(socket.id, quiz, roomID, options);
+      const newGame = new Room(socket.id, quiz, roomID, options);
+      manager.addGame(roomID, newGame);
       const { shuffleQuestions, shuffleAnswers } = options;
-      if (shuffleQuestions) games[roomID].shuffleQuestions();
-      if (shuffleAnswers) games[roomID].shuffleAnswers();
-      console.log('new game created', games[roomID]);
+      if (shuffleQuestions) newGame.shuffleQuestions();
+      if (shuffleAnswers) newGame.shuffleAnswers();
       socket.join(roomID);
       socket.room = roomID;
       emitGameState(roomID);
@@ -71,8 +58,7 @@ async function init(server) {
 
     socket.on('startGame', () => {
       const room = socket.room;
-      if (!room) return;
-      const game = games[room];
+      const game = manager.getGameById(room);
       game.state = 'QUESTION';
       io.to(room).emit('question', game.getCurrentQuestion());
       emitGameState(room);
@@ -81,13 +67,13 @@ async function init(server) {
       const onQuestionEnd = () => {
         clearInterval(timer);
         // check room still exists (i.e. host tab still open)
-        if (!games[room]) return;
+        if (!manager.getGameById(room)) return;
         // if exists, move on to next question
         game.nextQuestion();
         if (game.isOver) {
           game.state = 'GAMEOVER';
           emitGameState(room);
-          return incrementDbStats(game);
+          return manager.incrementDbStats(game);
         }
         emitTimer(room, game.getCurrentQuestion().timer);
         io.to(room).emit('question', game.getCurrentQuestion());
@@ -99,12 +85,12 @@ async function init(server) {
 
     socket.on('answer', (answer, callback) => {
       const room = socket.room;
-      if (!room) return;
-      const player = games[room].getPlayerBySocket(socket);
+      const game = manager.getGameById(room);
+      const player = game.getPlayerBySocket(socket);
       if (player.hasAnswered) return;
-      const answers = games[room].getCurrentAnswers();
-      const question = games[room].getCurrentQuestion();
-      const { streakMultiplier } = games[room].options;
+      const answers = game.getCurrentAnswers();
+      const question = game.getCurrentQuestion();
+      const { options: { streakMultiplier } } = game;
       const isCorrect = !answers.length || answers.includes(answer);
       if (isCorrect) {
         player.setCorrect(streakMultiplier && player.streak ? question.points * player.streak : question.points);
@@ -113,40 +99,40 @@ async function init(server) {
         player.setIncorrect();
         callback(false);
       }
-      question.correct_answers = answers;
+      question.answers = answers;
       player.addAnswer({ question, answer, isCorrect });
-      games[room].numAnswered += 1;
+      game.numAnswered += 1;
       emitGameState(room);
     });
 
     socket.on('kickPlayer', (socketId) => {
       const room = socket.room;
+      const game = manager.getGameById(room);
       // was it sent by the game host?
-      if (games[room].host !== socket.id) return;
+      if (game.host !== socket.id) return;
       const player = io.sockets.connected[socketId];
       if (!player) return;
       player.leave(room);
-      games[room].removePlayer(player);
+      game.removePlayer(player);
       emitGameState(room);
       player.emit('forceDisconnect', 'You were removed by the game host!');
     });
 
     socket.on('disconnect', () => {
       const room = socket.room;
-      if (!room) return;
+      const game = manager.getGameById(room);
       // if room deleted by host, no need to manually remove player.
-      if (!games[room]) return;
+      if (!game) return;
       // if host disconnects, destroy room object
-      if (games[room].host === socket.id) {
-        delete games[room];
+      if (game.host === socket.id) {
+        manager.removeGame(room);
         // emit disconnect event to all players in room to inform them
         return io.to(room).emit('forceDisconnect', 'Host ended the game');
       }
-      games[room].removePlayer(socket);
+      game.removePlayer(socket);
       emitGameState(room);
     });
   });
 }
 
 module.exports = init;
-module.exports.games = games;

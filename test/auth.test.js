@@ -33,7 +33,7 @@ describe('Authentication tests', () => {
       .then(response => {
         expect(response.body).to.be.an('object');
         expect(response.body).to.have.property('error');
-        expect(response.body.error).to.equal('username already exists');
+        expect(response.body.error).to.equal('This username is already in use. Please choose another.');
         done();
       });
     });

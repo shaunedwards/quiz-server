@@ -16,7 +16,7 @@ const game = {
       type: 'multiple',
       text: 'test question',
       choices: ['true', 'false'],
-      correct_answers: ['true'],
+      answers: ['true'],
       points: 500,
       timer: 30
     }
@@ -128,7 +128,7 @@ describe('Games tests', () => {
     it('should return a 403 status', (done) => {
       request(app)
         .post('/auth/local')
-        .send({ username: 'some-other-user', password: 'testing123' })
+        .send({ username: 'some_other_user', password: 'testing123' })
         .then(response => {
           const cookie = response.headers['set-cookie'].pop().split(';')[0];
           request(app)
@@ -154,7 +154,7 @@ describe('Games tests', () => {
     it('should return a 403 status', (done) => {
       request(app)
         .post('/auth/local')
-        .send({ username: 'some-other-user', password: 'testing123' })
+        .send({ username: 'some_other_user', password: 'testing123' })
         .then(response => {
           const cookie = response.headers['set-cookie'].pop().split(';')[0];
           request(app)

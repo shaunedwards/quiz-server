@@ -1,6 +1,7 @@
 require('dotenv').config();
 const cors = require('cors');
 const http = require('http');
+const helmet = require('helmet');
 const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
@@ -34,6 +35,7 @@ app.use(cors({
     'http://mmp-sme4.dcs.aber.ac.uk:3000'
   ]
 }));
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
@@ -63,7 +65,7 @@ app.use((req, res, next) => {
 
 app.use((err, req, res, next) => {
   if (err.name === 'ValidationError') err.status = 400;
-  const [ field ] = err.errors ? Object.keys(err.errors) : [];
+  const [field] = err.errors ? Object.keys(err.errors) : [];
   res.status(err.status || 500).json({
     error: field ? err.errors[field].message : err.message
   });

@@ -13,7 +13,7 @@ async function updateLastLogin(user) {
 router.post('/register', async (req, res, next) => {
   const { username: uid, password } = req.body;
   const user = await User.findOne({ uid });
-  if (user) return res.status(400).json({ error: 'username already exists' });
+  if (user) return res.status(400).json({ error: 'This username is already in use. Please choose another.' });
   const newUser = await new User({ uid, password });
   newUser.save((err, user) => {
     if (err) return next(err);
@@ -37,12 +37,11 @@ router.post('/auth/local', (req, res, next) => {
 router.post('/auth/ldap', passport.authenticate('ldapauth', { session: true }), async (req, res, next) => {
   const user = await User.findOne({ uid: req.user.uid });
   if (!user) {
-    const newUser = await User.create({
+    await User.create({
       uid: req.user.uid,
       email: req.user.mail,
       name: req.user.displayName
     });
-    console.log('new user created', newUser);
   } else {
     await updateLastLogin(user);
   }

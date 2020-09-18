@@ -17,7 +17,7 @@ before(async () => {
   await Subject.collection.insertMany(subjects);
   await request(app)
     .post('/auth/local')
-    .send({ username: 'test-user', password: 'testing123' })
+    .send({ username: 'test_user', password: 'testing123' })
     .then(response => {
       // store session cookie for authenticated routes
       cookie = response.headers['set-cookie'].pop().split(';')[0];

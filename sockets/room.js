@@ -7,7 +7,7 @@ class Room {
     this.roomID = roomID;
     this.state = 'LOBBY';
     this.currentIdx = 0;
-    this.players = {};
+    this.players = new Map();
     this.isOver = false;
     this.numAnswered = 0;
     this.options = options;
@@ -24,15 +24,15 @@ class Room {
   nextQuestion() {
     // pre-question checks before moving on...
     const question = this.getCurrentQuestion();
-    const correct_answers = this.getCurrentAnswers();
-    Object.entries(this.players).forEach(([_, player]) => {
+    const answers = this.getCurrentAnswers();
+    this.players.forEach(player => {
       // if `hasAnswered` is false, push to answer history + reset streak
       if (!player.hasAnswered) {
         player.streak = 0;
         player.answerHistory.push({
           question: {
             ...question,
-            correct_answers
+            answers
           },
           answer: null,
           isCorrect: false
@@ -49,28 +49,27 @@ class Room {
   }
 
   addPlayer(socket, player) {
-    this.players[socket.id] = player;
+    this.players.set(socket.id, player);
   }
 
   removePlayer(socket) {
-    if (this.numAnswered > 0) {
-      this.numAnswered--;
-    }
-    delete this.players[socket.id];
+    const player = this.getPlayerBySocket(socket);
+    if (player && player.hasAnswered) this.numAnswered--;
+    this.players.delete(socket.id);
   }
 
   getPlayerBySocket(socket) {
-    return this.players[socket.id];
+    return this.players.get(socket.id);
   }
 
   getCurrentQuestion() {
     let question = { ...this.quiz.questions[this.currentIdx] };
-    question.correct_answers = undefined;
+    question.answers = undefined;
     return question;
   }
 
   getCurrentAnswers() {
-    return this.quiz.questions[this.currentIdx].correct_answers;
+    return this.quiz.questions[this.currentIdx].answers;
   }
   
   getNumQuestions() {
@@ -78,14 +77,12 @@ class Room {
   }
 
   getNumPlayers() {
-    return Object.keys(this.players).length;
+    return this.players.size;
   }
 
   getTotalCorrect() {
     let total = 0;
-    Object.entries(this.players).forEach(([_, player]) => {
-      total += player.getTotalCorrect();
-    });
+    this.players.forEach(player => total += player.getTotalCorrect());
     return total;
   }
 
@@ -95,7 +92,7 @@ class Room {
       roomID: this.roomID,
       title: this.quiz.title,
       state: this.state,
-      players: this.players,
+      players: Object.fromEntries(this.players),
       isOver: this.isOver,
       numAnswered: this.numAnswered,
       numQuestions: this.getNumQuestions(),

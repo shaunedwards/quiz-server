@@ -16,7 +16,7 @@ const questionSchema = new Schema({
     type: [String],
     trim: true
   },
-  correct_answers: {
+  answers: {
     type: [String],
     trim: true
   },

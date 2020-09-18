@@ -5,10 +5,19 @@ const userSchema = new Schema({
   uid: {
     type: String,
     trim: true,
-    required: true
+    required: [true, 'Username is required'],
+    minlength: [3, 'Usernames must be between 3 and 15 characters'],
+    maxlength: [15, 'Usernames must be between 3 and 15 characters'],
+    validate: {
+      validator: function(v) {
+        return /^[a-zA-Z0-9_]*$/.test(v)
+      },
+      message: 'Usernames can only contain alphanumeric characters'
+    }
   },
   password: {
-    type: String
+    type: String,
+    minlength: [8, 'Passwords must be at least 8 characters']
   },
   email: {
     type: String,
