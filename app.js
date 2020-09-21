@@ -11,6 +11,7 @@ const User = require('./models/user');
 const LdapStrategy = require('./auth/ldap');
 const LocalStrategy = require('./auth/local');
 const mongooseConnection = require('./db/connection');
+const production = process.env.NODE_ENV === 'production';
 
 const app = express();
 const server = http.createServer(app);
@@ -42,13 +43,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({
   name: 'sid',
   resave: false,
+  proxy: production,
   saveUninitialized: false,
   secret: process.env.SESSION_SECRET,
   store: new MongoStore({ mongooseConnection }),
   cookie: {
     httpOnly: true,
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-    secure: process.env.NODE_ENV === 'production'
+    secure: production,
+    maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
   }
 }));
 app.use(passport.initialize());
