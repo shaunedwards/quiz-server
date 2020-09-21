@@ -5,11 +5,12 @@ const helmet = require('helmet');
 const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
 
-require('./db/connection');
 const User = require('./models/user');
 const LdapStrategy = require('./auth/ldap');
 const LocalStrategy = require('./auth/local');
+const mongooseConnection = require('./db/connection');
 
 const app = express();
 const server = http.createServer(app);
@@ -39,12 +40,15 @@ app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  name: 'sid',
   resave: false,
   saveUninitialized: false,
+  secret: process.env.SESSION_SECRET,
+  store: new MongoStore({ mongooseConnection }),
   cookie: {
     httpOnly: true,
-    maxAge: 86400000 // 24h
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    secure: process.env.NODE_ENV === 'production'
   }
 }));
 app.use(passport.initialize());

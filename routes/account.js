@@ -54,7 +54,7 @@ router.post('/auth/ldap', passport.authenticate('ldapauth', { session: true }), 
 router.get('/logout', (req, res, next) => {
   req.session.destroy(() => {
     req.logout();
-    res.clearCookie('connect.sid');
+    res.clearCookie('sid');
     res.sendStatus(200);
   });
 });
