@@ -10,15 +10,30 @@ const questionSchema = new Schema({
   text: {
     type: String,
     trim: true,
-    required: true
+    required: [true, 'You must provide text for the question'],
+    maxlength: [80, 'Question text must not exceed 80 characters']
   },
   choices: {
-    type: [String],
-    trim: true
+    type: [{
+      type: String,
+      trim: true,
+      maxlength: [50, 'Choice text must not exceed 50 characters']
+    }],
+    required: true,
+    validate: {
+      validator: function(arr) {
+        return arr.length >= 2
+      },
+      message: 'You must provide at least two answer choices'
+    }
   },
   answers: {
-    type: [String],
-    trim: true
+    type: [{
+      type: String,
+      trim: true,
+      maxlength: [50, 'Answer text must not exceed 50 characters']
+    }],
+    required: true
   },
   points: {
     type: Number,

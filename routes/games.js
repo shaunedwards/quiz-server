@@ -42,7 +42,7 @@ router.post('/', isAuthenticated, (req, res, next) => {
 });
 
 router.put('/:id', isAuthenticated, isCreator, (req, res, next) => {
-  Game.findByIdAndUpdate(req.params.id, req.body, { new: true })
+  Game.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
     .then(game => res.json(game))
     .catch(next);
 });

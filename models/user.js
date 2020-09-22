@@ -12,7 +12,7 @@ const userSchema = new Schema({
       validator: function(v) {
         return /^[a-zA-Z0-9_]*$/.test(v)
       },
-      message: 'Usernames can only contain alphanumeric characters'
+      message: 'Usernames may contain letters, numbers and underscores'
     }
   },
   password: {

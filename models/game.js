@@ -7,11 +7,13 @@ const gameSchema = new Schema({
   title: {
     type: String,
     trim: true,
-    required: true
+    required: [true, 'You must provide a title for the quiz'],
+    maxlength: [50, 'Quiz title must not exceed 50 characters']
   },
   desc: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: [255, 'Quiz description must not exceed 255 characters']
   },
   created_by: {
     type: 'ObjectId',
