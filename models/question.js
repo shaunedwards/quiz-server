@@ -11,7 +11,7 @@ const questionSchema = new Schema({
     type: String,
     trim: true,
     required: [true, 'You must provide text for the question'],
-    maxlength: [80, 'Question text must not exceed 80 characters']
+    maxlength: [90, 'Question text must not exceed 90 characters']
   },
   choices: {
     type: [{

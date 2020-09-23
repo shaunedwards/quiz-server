@@ -10,7 +10,12 @@ async function updateLastLogin(user) {
   await user.save();
 }
 
-router.post('/register', async (req, res, next) => {
+function usernameToLowerCase(req, res, next) {
+  req.body.username = req.body.username.toLowerCase();
+  next();
+}
+
+router.post('/register', usernameToLowerCase, async (req, res, next) => {
   const { username: uid, password } = req.body;
   const user = await User.findOne({ uid });
   if (user) return res.status(400).json({ error: 'This username is already in use. Please choose another.' });
@@ -21,7 +26,7 @@ router.post('/register', async (req, res, next) => {
   });
 });
 
-router.post('/auth/local', (req, res, next) => {
+router.post('/auth/local', usernameToLowerCase, (req, res, next) => {
   passport.authenticate('local', { session: true }, async (err, user, info) => {
     if (err || !user) return res.status(401).json({ error: info });
     await updateLastLogin(user);

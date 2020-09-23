@@ -5,13 +5,6 @@ const User = require('../models/user');
 const Game = require('../models/game');
 const { isAuthenticated } = require('../middlewares/auth');
 
-router.get('/', isAuthenticated, (req, res, next) => {
-  res.json({
-    message: `Hi, ${req.user.name}!`,
-    user: req.user
-  });
-});
-
 router.get('/games', isAuthenticated, (req, res, next) => {
   const limit = Number(req.query.limit) || 0;
   Game.find({ created_by: req.user._id })
